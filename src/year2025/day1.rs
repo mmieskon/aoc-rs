@@ -1,10 +1,7 @@
 use std::fmt::Display;
 
 pub fn calculate_password(data: &str) -> u32 {
-    let lines = data
-        .split("\n")
-        .filter(|x| !x.is_empty())
-        .map(|x| x.trim_end());
+    let lines = data.lines();
 
     let mut dial = Dial::default();
 
@@ -34,9 +31,7 @@ impl Dial {
         let amount: i32 = s[1..].parse().unwrap();
 
         if s.starts_with('L') {
-            self.value = 99 - self.value;
-            self.value = (self.value + amount) % 100;
-            self.value = 99 - self.value;
+            self.value = (self.value - amount) % 100;
         } else if s.starts_with('R') {
             self.value = (self.value + amount) % 100;
         } else {
