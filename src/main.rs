@@ -31,8 +31,8 @@ impl Display for Dial {
 }
 
 fn main() {
-    let path: String = std::env::args().skip(1).take(1).collect();
-    let content = std::fs::read_to_string(&path).unwrap();
+    let path: &str = &std::env::args().nth(1).unwrap();
+    let content = std::fs::read_to_string(path).unwrap();
     let lines = content
         .split("\n")
         .filter(|x| !x.is_empty())
