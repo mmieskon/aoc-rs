@@ -5,6 +5,7 @@ where
     T1: Display,
     T2: Display,
 {
+    day: u8,
     part1: T1,
     part2: T2,
 }
@@ -14,8 +15,8 @@ where
     T1: Display,
     T2: Display,
 {
-    pub fn new(part1: T1, part2: T2) -> Self {
-        Self { part1, part2 }
+    pub fn new(day: u8, part1: T1, part2: T2) -> Self {
+        Self { day, part1, part2 }
     }
 }
 
@@ -27,8 +28,8 @@ where
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Day1\n  - Part1: {}\n  - Part2: {}",
-            self.part1, self.part2
+            "Day{}\n  - Part1: {}\n  - Part2: {}",
+            self.day, self.part1, self.part2
         )
     }
 }

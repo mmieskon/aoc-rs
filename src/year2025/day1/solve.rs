@@ -9,5 +9,5 @@ pub fn solve(data: &str) -> Solution<u32, u32> {
         dial.rotate(rotation);
     }
 
-    Solution::new(dial.visited_zeros_strict(), dial.visited_zeros_loose())
+    Solution::new(1, dial.visited_zeros_strict(), dial.visited_zeros_loose())
 }
