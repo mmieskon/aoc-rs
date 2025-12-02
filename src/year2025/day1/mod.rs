@@ -1,4 +1,6 @@
-pub fn calculate_password(data: &str) -> (u32, u32) {
+use crate::solution::Solution;
+
+pub fn solve(data: &str) -> Solution<u32, u32> {
     let lines = data.lines();
     let mut dial = Dial::default();
 
@@ -6,7 +8,7 @@ pub fn calculate_password(data: &str) -> (u32, u32) {
         dial.rotate(line);
     }
 
-    (dial.visited_zeros_strict, dial.visited_zeros_loose)
+    Solution::new(dial.visited_zeros_strict, dial.visited_zeros_loose)
 }
 
 #[derive(Debug)]
