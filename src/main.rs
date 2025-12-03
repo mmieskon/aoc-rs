@@ -10,7 +10,16 @@ fn main() {
     match args.day {
         1 => println!("Day1:\n{}", day1::solve(&data)),
         2 => println!("Day2:\n{}", day2::solve(&data)),
-        3..=12 => todo!(),
+        3 => todo!(),
+        4 => todo!(),
+        5 => todo!(),
+        6 => todo!(),
+        7 => todo!(),
+        8 => todo!(),
+        9 => todo!(),
+        10 => todo!(),
+        11 => todo!(),
+        12 => todo!(),
         _ => args::print_usage_and_exit(),
     };
 }

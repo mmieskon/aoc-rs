@@ -10,7 +10,10 @@ pub fn solve(data: &str) -> Solution<usize, &'static str> {
         digits.append(&mut invalid_digits(range));
     }
 
-    Solution::new(digits.iter().sum(), "TODO")
+    Solution {
+        part1: digits.iter().sum(),
+        part2: "TODO",
+    }
 }
 
 fn parse_range(range_str: &str) -> RangeInclusive<usize> {
