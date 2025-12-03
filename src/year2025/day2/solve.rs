@@ -2,7 +2,7 @@ use std::ops::RangeInclusive;
 
 use crate::solution::Solution;
 
-pub fn solve(data: &str) -> Solution<usize, &'static str> {
+pub fn solve(data: &str) -> Solution<&'static str, &'static str> {
     let mut digits: Vec<usize> = Vec::new();
 
     for range_str in data.trim().split(',') {
@@ -10,7 +10,7 @@ pub fn solve(data: &str) -> Solution<usize, &'static str> {
         digits.append(&mut invalid_digits(range));
     }
 
-    Solution::new(digits.iter().sum(), "TODO")
+    Solution::new("TODO", "TODO")
 }
 
 fn parse_range(range_str: &str) -> RangeInclusive<usize> {
@@ -50,6 +50,7 @@ fn is_invalid(id: usize) -> bool {
 fn repeats(byte_str: &str, window_size: usize) -> bool {
     let mut peekable = byte_str.byte_window_iter(window_size).peekable();
 
+    // TODO: This does not work
     while let Some(current) = peekable.next() {
         if peekable.peek().is_some_and(|&peeked| peeked == current) {
             return true;
