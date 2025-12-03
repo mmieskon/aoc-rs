@@ -1,4 +1,5 @@
 /target
+Justfile
 
 # The following are ignored because they might contain some copyrighted data
 /data
