@@ -5,8 +5,8 @@ where
     T1: Display,
     T2: Display,
 {
-    part1: T1,
-    part2: T2,
+    pub part1: T1,
+    pub part2: T2,
 }
 
 impl<T1, T2> Solution<T1, T2>
