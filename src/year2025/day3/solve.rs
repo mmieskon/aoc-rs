@@ -1,40 +1,35 @@
 use crate::solution::Solution;
 
-pub fn solve(data: &str) -> Solution<usize, &'static str> {
-    let mut total_joltage = 0;
+pub fn solve(data: &str) -> Solution<usize, usize> {
+    let mut total_joltage = (0, 0);
 
     for line in data.lines() {
-        total_joltage += joltage(line);
+        total_joltage.0 += joltage(line, 2);
+        total_joltage.1 += joltage(line, 12);
     }
 
     Solution {
-        part1: total_joltage,
-        part2: "TODO",
+        part1: total_joltage.0,
+        part2: total_joltage.1,
     }
 }
 
-pub(crate) fn joltage(line: &str) -> usize {
-    let last_idx = line.len() - 1;
+pub(crate) fn joltage(line: &str, digit_count: usize) -> usize {
+    let mut digits: Vec<u8> = Vec::new();
+    let bytes: Vec<_> = line.bytes().enumerate().collect();
 
-    let max_byte = line.bytes().max().unwrap();
-    let idx = line
-        .bytes()
-        .enumerate()
-        .find(|(_, val)| *val == max_byte)
-        .map(|tuple| tuple.0)
-        .unwrap();
+    let mut start = 0;
+    for i in 0..digit_count {
+        let end = line.len() - (digit_count - i);
 
-    let ch1;
-    let ch2;
-    if idx == last_idx {
-        let max_byte_first = line[..last_idx].bytes().max().unwrap();
-        ch1 = char::from(max_byte_first);
-        ch2 = char::from(max_byte);
-    } else {
-        let max_byte_second = line[(idx + 1)..].bytes().max().unwrap();
-        ch1 = char::from(max_byte);
-        ch2 = char::from(max_byte_second);
+        let (idx, byte) = max_first(&bytes[start..=end]);
+        digits.push(byte);
+        start = idx + 1;
     }
 
-    format!("{ch1}{ch2}").parse().unwrap()
+    String::from_utf8_lossy(&digits).parse().unwrap()
+}
+
+fn max_first(bytes: &[(usize, u8)]) -> (usize, u8) {
+    *bytes.iter().rev().max_by(|x, y| x.1.cmp(&y.1)).unwrap()
 }
