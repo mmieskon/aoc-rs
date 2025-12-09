@@ -20,16 +20,15 @@ pub fn solve(data: &str) -> Solution<usize, &str> {
         .map(|(start, end)| start.parse().unwrap()..=end.parse().unwrap())
         .collect();
 
-    let ids: Vec<usize> = lines[empty_idx + 1..]
+    let ids = lines[empty_idx + 1..]
         .iter()
-        .map(|&line| line.parse().unwrap())
-        .collect();
+        .map(|&line| line.parse::<usize>().unwrap());
 
     let mut fresh_ids: usize = 0;
 
-    for id in &ids {
+    for id in ids {
         for range in &ranges {
-            if range.contains(id) {
+            if range.contains(&id) {
                 fresh_ids += 1;
                 break;
             }
