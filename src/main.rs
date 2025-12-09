@@ -1,6 +1,6 @@
 use aoc_rs::{
     args::{self, Args},
-    year2025::{day1, day2, day3, day4},
+    year2025::{day1, day2, day3, day4, day5},
 };
 
 fn main() {
@@ -12,7 +12,7 @@ fn main() {
         2 => println!("Day2:\n{}", day2::solve(&data)),
         3 => println!("Day3:\n{}", day3::solve(&data)),
         4 => println!("Day4:\n{}", day4::solve(&data)),
-        5 => todo!(),
+        5 => println!("Day5:\n{}", day5::solve(&data)),
         6 => todo!(),
         7 => todo!(),
         8 => todo!(),
