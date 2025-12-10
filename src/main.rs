@@ -13,7 +13,7 @@ fn main() {
         3 => println!("Day3:\n{}", day3::solve(&data)),
         4 => println!("Day4:\n{}", day4::solve(&data)),
         5 => println!("Day5:\n{}", day5::solve(&data)),
-        6 => todo!(),
+        6 => println!("Day6:\n{}", day6::solve(&data)),
         7 => todo!(),
         8 => todo!(),
         9 => todo!(),
