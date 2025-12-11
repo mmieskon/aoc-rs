@@ -1,5 +1,5 @@
-use super::beam_simulator::BeamSimulatorClassical;
-use super::beam_simulator2::BeamSimulatorQuantum;
+use super::beam_simulator_classical::BeamSimulatorClassical;
+use super::beam_simulator_quantum::BeamSimulatorQuantum;
 use crate::solution::Solution;
 
 pub fn solve(data: &str) -> Solution<u32, u64> {
