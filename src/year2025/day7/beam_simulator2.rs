@@ -1,0 +1,131 @@
+use std::{ops::Index, str::FromStr};
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+pub struct Position {
+    pub row: usize,
+    pub col: usize,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Item {
+    Empty,
+    Spawn,
+    Splitter,
+}
+
+#[derive(Debug)]
+pub struct BeamSimulatorQuantum {
+    map: Vec<Vec<Item>>,
+    rows: usize,
+    cols: usize,
+    beams: Vec<(Position, u64)>,
+    visited_splitters_count: u64,
+}
+
+impl BeamSimulatorQuantum {
+    pub fn simulate(&mut self) {
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                let pos = Position { row, col };
+
+                if matches!(self[&pos], Item::Spawn) {
+                    self.beams.push((pos, 1));
+                    break;
+                }
+            }
+        }
+
+        let mut new_beams: Vec<(Position, u64)> = Vec::new();
+        for row in 0..self.rows {
+            for (col, _) in self.map[row]
+                .iter()
+                .enumerate()
+                .filter(|(_, item)| matches!(item, Item::Splitter))
+            {
+                if let Some(beam) = self
+                    .beams
+                    .iter_mut()
+                    .find(|(p, _)| *p == Position { row, col })
+                {
+                    beam.0.col = beam.0.col.checked_sub(1).unwrap();
+                    new_beams.push((Position { row, col: col + 1 }, beam.1));
+                }
+            }
+
+            self.beams.append(&mut new_beams);
+            combine_beams(&mut self.beams);
+
+            for (pos, _) in &mut self.beams {
+                pos.row += 1;
+            }
+        }
+
+        for (_, strength) in &self.beams {
+            self.visited_splitters_count += strength;
+        }
+    }
+
+    pub fn visited_splitters_count(&self) -> u64 {
+        self.visited_splitters_count
+    }
+}
+
+fn combine_beams(beams: &mut Vec<(Position, u64)>) {
+    let mut found = true;
+
+    while found {
+        found = false;
+
+        'b: for i in 0..beams.len() {
+            for j in (i + 1)..beams.len() {
+                if beams[i].0 == beams[j].0 {
+                    beams[i].1 += beams[j].1;
+                    beams.remove(j);
+                    found = true;
+                    break 'b;
+                }
+            }
+        }
+    }
+}
+
+impl FromStr for BeamSimulatorQuantum {
+    type Err = Box<dyn std::error::Error>;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut map: Vec<Vec<Item>> = Vec::new();
+
+        for (i, line) in s.lines().enumerate() {
+            map.push(Vec::new());
+
+            for byte in line.bytes() {
+                let item = match byte {
+                    b'.' => Item::Empty,
+                    b'S' => Item::Spawn,
+                    b'^' => Item::Splitter,
+                    _ => return Err("Invalid map".into()),
+                };
+
+                map[i].push(item);
+            }
+        }
+
+        // TODO: Check that map dimensions are ok
+
+        Ok(BeamSimulatorQuantum {
+            rows: map.len(),
+            cols: map[0].len(),
+            map,
+            beams: Vec::new(),
+            visited_splitters_count: 0,
+        })
+    }
+}
+
+impl Index<&Position> for BeamSimulatorQuantum {
+    type Output = Item;
+
+    fn index(&self, index: &Position) -> &Self::Output {
+        &self.map[index.row][index.col]
+    }
+}

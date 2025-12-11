@@ -14,7 +14,7 @@ pub enum Item {
 }
 
 #[derive(Debug)]
-pub struct BeamSimulator {
+pub struct BeamSimulatorClassical {
     map: Vec<Vec<Item>>,
     rows: usize,
     cols: usize,
@@ -22,7 +22,7 @@ pub struct BeamSimulator {
     visited_splitters_count: u32,
 }
 
-impl BeamSimulator {
+impl BeamSimulatorClassical {
     pub fn simulate(&mut self) {
         for row in 0..self.rows {
             for col in 0..self.cols {
@@ -75,7 +75,7 @@ impl BeamSimulator {
     }
 }
 
-impl FromStr for BeamSimulator {
+impl FromStr for BeamSimulatorClassical {
     type Err = Box<dyn std::error::Error>;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -98,7 +98,7 @@ impl FromStr for BeamSimulator {
 
         // TODO: Check that map dimensions are ok
 
-        Ok(BeamSimulator {
+        Ok(BeamSimulatorClassical {
             rows: map.len(),
             cols: map[0].len(),
             map,
@@ -108,7 +108,7 @@ impl FromStr for BeamSimulator {
     }
 }
 
-impl Index<&Position> for BeamSimulator {
+impl Index<&Position> for BeamSimulatorClassical {
     type Output = Item;
 
     fn index(&self, index: &Position) -> &Self::Output {
