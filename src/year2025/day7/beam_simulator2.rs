@@ -1,10 +1,4 @@
-use std::{ops::Index, str::FromStr};
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone)]
-pub struct Position {
-    pub row: usize,
-    pub col: usize,
-}
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Item {
@@ -18,7 +12,7 @@ pub struct BeamSimulatorQuantum {
     map: Vec<Vec<Item>>,
     rows: usize,
     cols: usize,
-    beams: Vec<(usize, u64)>,
+    beams: Vec<(usize, u64)>, // Vec<(column, strength)>
     visited_splitters_count: u64,
 }
 
@@ -26,10 +20,8 @@ impl BeamSimulatorQuantum {
     pub fn simulate(&mut self) {
         for row in 0..self.rows {
             for col in 0..self.cols {
-                let pos = Position { row, col };
-
-                if matches!(self[&pos], Item::Spawn) {
-                    self.beams.push((pos.col, 1));
+                if matches!(self.map[row][col], Item::Spawn) {
+                    self.beams.push((col, 1));
                     break;
                 }
             }
@@ -111,13 +103,5 @@ impl FromStr for BeamSimulatorQuantum {
             beams: Vec::new(),
             visited_splitters_count: 0,
         })
-    }
-}
-
-impl Index<&Position> for BeamSimulatorQuantum {
-    type Output = Item;
-
-    fn index(&self, index: &Position) -> &Self::Output {
-        &self.map[index.row][index.col]
     }
 }
