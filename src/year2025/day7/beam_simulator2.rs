@@ -18,7 +18,7 @@ pub struct BeamSimulatorQuantum {
     map: Vec<Vec<Item>>,
     rows: usize,
     cols: usize,
-    beams: Vec<(Position, u64)>,
+    beams: Vec<(usize, u64)>,
     visited_splitters_count: u64,
 }
 
@@ -29,35 +29,27 @@ impl BeamSimulatorQuantum {
                 let pos = Position { row, col };
 
                 if matches!(self[&pos], Item::Spawn) {
-                    self.beams.push((pos, 1));
+                    self.beams.push((pos.col, 1));
                     break;
                 }
             }
         }
 
-        let mut new_beams: Vec<(Position, u64)> = Vec::new();
+        let mut new_beams: Vec<(usize, u64)> = Vec::new();
         for row in 0..self.rows {
             for (col, _) in self.map[row]
                 .iter()
                 .enumerate()
                 .filter(|(_, item)| matches!(item, Item::Splitter))
             {
-                if let Some(beam) = self
-                    .beams
-                    .iter_mut()
-                    .find(|(p, _)| *p == Position { row, col })
-                {
-                    beam.0.col = beam.0.col.checked_sub(1).unwrap();
-                    new_beams.push((Position { row, col: col + 1 }, beam.1));
+                if let Some(beam) = self.beams.iter_mut().find(|(c, _)| *c == col) {
+                    beam.0 = beam.0.checked_sub(1).unwrap();
+                    new_beams.push((col + 1, beam.1));
                 }
             }
 
             self.beams.append(&mut new_beams);
             combine_beams(&mut self.beams);
-
-            for (pos, _) in &mut self.beams {
-                pos.row += 1;
-            }
         }
 
         for (_, strength) in &self.beams {
@@ -70,7 +62,7 @@ impl BeamSimulatorQuantum {
     }
 }
 
-fn combine_beams(beams: &mut Vec<(Position, u64)>) {
+fn combine_beams(beams: &mut Vec<(usize, u64)>) {
     let mut found = true;
 
     while found {
