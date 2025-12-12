@@ -19,7 +19,7 @@ pub struct BeamSimulatorClassical {
     rows: usize,
     cols: usize,
     visited_positions: HashSet<Position>,
-    visited_splitters_count: u32,
+    ans: u32,
 }
 
 impl BeamSimulatorClassical {
@@ -37,8 +37,8 @@ impl BeamSimulatorClassical {
         unreachable!();
     }
 
-    pub fn visited_splitters_count(&self) -> u32 {
-        self.visited_splitters_count
+    pub fn ans(&self) -> u32 {
+        self.ans
     }
 
     fn simulate_beam(&mut self, pos: &Position) {
@@ -49,7 +49,7 @@ impl BeamSimulatorClassical {
             }
 
             if matches!(self[&pos], Item::Splitter) {
-                self.visited_splitters_count += 1;
+                self.ans += 1;
 
                 let mut pos_left = pos.clone();
                 pos_left.col -= 1; // NOTE: Assumes this never goes below zero
@@ -103,7 +103,7 @@ impl FromStr for BeamSimulatorClassical {
             cols: map[0].len(),
             map,
             visited_positions: HashSet::new(),
-            visited_splitters_count: 0,
+            ans: 0,
         })
     }
 }

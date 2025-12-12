@@ -13,7 +13,7 @@ pub struct BeamSimulatorQuantum {
     rows: usize,
     cols: usize,
     beams: Vec<(usize, u64)>, // Vec<(column, strength)>
-    visited_splitters_count: u64,
+    ans: u64,
 }
 
 impl BeamSimulatorQuantum {
@@ -45,12 +45,12 @@ impl BeamSimulatorQuantum {
         }
 
         for (_, strength) in &self.beams {
-            self.visited_splitters_count += strength;
+            self.ans += strength;
         }
     }
 
-    pub fn visited_splitters_count(&self) -> u64 {
-        self.visited_splitters_count
+    pub fn ans(&self) -> u64 {
+        self.ans
     }
 }
 
@@ -101,7 +101,7 @@ impl FromStr for BeamSimulatorQuantum {
             cols: map[0].len(),
             map,
             beams: Vec::new(),
-            visited_splitters_count: 0,
+            ans: 0,
         })
     }
 }

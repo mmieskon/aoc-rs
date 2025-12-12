@@ -10,7 +10,7 @@ pub fn solve(data: &str) -> Solution<u32, u64> {
     simulator_quantum.simulate();
 
     Solution {
-        part1: simulator_classical.visited_splitters_count(),
-        part2: simulator_quantum.visited_splitters_count(),
+        part1: simulator_classical.ans(),
+        part2: simulator_quantum.ans(),
     }
 }
