@@ -23,7 +23,6 @@ impl Position {
 
 #[derive(Debug)]
 struct JunctionBoxes {
-    positions: Vec<Position>,
     pairs_sorted_by_dist: Vec<(usize, usize)>,
     circuits: Vec<HashSet<usize>>,
 }
@@ -102,20 +101,19 @@ impl FromStr for JunctionBoxes {
         let mut pairs = Vec::new();
         for i in 0..positions.len() {
             for j in (i + 1)..positions.len() {
-                pairs.push(((i, j), (positions[i].clone(), positions[j].clone())));
+                pairs.push(((i, j), (&positions[i], &positions[j])));
             }
         }
         pairs.sort_by(|(_, pair1), (_, pair2)| {
             pair1
                 .0
-                .dist_relative(&pair1.1)
-                .total_cmp(&pair2.0.dist_relative(&pair2.1))
+                .dist_relative(pair1.1)
+                .total_cmp(&pair2.0.dist_relative(pair2.1))
         });
 
         let pairs_sorted_by_dist: Vec<(usize, usize)> = pairs.iter().map(|x| x.0).collect();
 
         let ret = Self {
-            positions,
             pairs_sorted_by_dist,
             circuits: Vec::new(),
         };
