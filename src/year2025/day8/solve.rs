@@ -88,32 +88,6 @@ impl FromStr for JunctionBoxes {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut visited_closest_pairs: HashSet<(usize, usize)> = HashSet::new();
-
-        let mut closest_boxes_next = |positions: &mut Vec<Position>| -> Option<(usize, usize)> {
-            let mut dist_smallest: f64 = f64::INFINITY;
-            let mut ret: Option<(usize, usize)> = None;
-
-            for i in 0..positions.len() {
-                for j in (i + 1)..positions.len() {
-                    let pos1 = &positions[i];
-                    let pos2 = &positions[j];
-                    let dist_curr = pos1.dist_relative(pos2);
-
-                    if (dist_curr < dist_smallest) && !visited_closest_pairs.contains(&(i, j)) {
-                        dist_smallest = dist_curr;
-                        ret = Some((i, j));
-                    }
-                }
-            }
-
-            if let Some(pair) = ret {
-                visited_closest_pairs.insert(pair);
-            }
-
-            ret
-        };
-
         let mut positions: Vec<Position> = Vec::new();
 
         for line in s.lines() {
@@ -125,19 +99,26 @@ impl FromStr for JunctionBoxes {
             positions.push(Position { x, y, z });
         }
 
-        let mut ret = Self {
-            positions,
-            pairs_sorted_by_dist: Vec::new(),
-            circuits: Vec::new(),
-        };
-
-        for _ in 0..ITER_COUNT {
-            if let Some((idx1, idx2)) = closest_boxes_next(&mut ret.positions) {
-                ret.pairs_sorted_by_dist.push((idx1, idx2));
-            } else {
-                break;
+        let mut pairs = Vec::new();
+        for i in 0..positions.len() {
+            for j in (i + 1)..positions.len() {
+                pairs.push(((i, j), (positions[i].clone(), positions[j].clone())));
             }
         }
+        pairs.sort_by(|(_, pair1), (_, pair2)| {
+            pair1
+                .0
+                .dist_relative(&pair1.1)
+                .total_cmp(&pair2.0.dist_relative(&pair2.1))
+        });
+
+        let pairs_sorted_by_dist: Vec<(usize, usize)> = pairs.iter().map(|x| x.0).collect();
+
+        let ret = Self {
+            positions,
+            pairs_sorted_by_dist,
+            circuits: Vec::new(),
+        };
 
         Ok(ret)
     }
