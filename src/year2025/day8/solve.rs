@@ -21,14 +21,16 @@ impl Position {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct JunctionBoxes {
+    positions: Vec<Position>,
     pairs_sorted_by_dist: Vec<(usize, usize)>,
     circuits: Vec<HashSet<usize>>,
+    lonely_circuit_count: usize,
 }
 
 impl JunctionBoxes {
-    fn solve(&mut self, iterations: usize) -> u32 {
+    fn solve_part1(&mut self, iterations: usize) -> u32 {
         for i in 0..iterations {
             let (idx1, idx2) = self.pairs_sorted_by_dist[i];
             self.try_connect(idx1, idx2);
@@ -42,6 +44,23 @@ impl JunctionBoxes {
         }
 
         ret
+    }
+
+    fn solve_part2(&mut self) -> u64 {
+        let mut i = 0;
+        let mut idx1_opt = None;
+        let mut idx2_opt = None;
+
+        while self.lonely_circuit_count > 0 {
+            let (idx1, idx2) = self.pairs_sorted_by_dist[i];
+            idx1_opt = Some(idx1);
+            idx2_opt = Some(idx2);
+            self.try_connect(idx1, idx2);
+            i += 1;
+        }
+
+        u64::from(self.positions[idx1_opt.unwrap()].x)
+            * u64::from(self.positions[idx2_opt.unwrap()].x)
     }
 
     fn try_connect(&mut self, idx1: usize, idx2: usize) {
@@ -59,6 +78,7 @@ impl JunctionBoxes {
                     let set = self.circuits.remove(idx);
                     self.circuits[i].extend(set);
                 } else {
+                    self.lonely_circuit_count -= 1;
                     self.circuits[i].insert(idx2);
                 }
                 return;
@@ -73,12 +93,14 @@ impl JunctionBoxes {
                     let set = self.circuits.remove(idx);
                     self.circuits[i].extend(set);
                 } else {
+                    self.lonely_circuit_count -= 1;
                     self.circuits[i].insert(idx1);
                 }
                 return;
             }
         }
 
+        self.lonely_circuit_count -= 2;
         self.circuits.push(HashSet::from([idx1, idx2]));
     }
 }
@@ -114,6 +136,8 @@ impl FromStr for JunctionBoxes {
         let pairs_sorted_by_dist: Vec<(usize, usize)> = pairs.iter().map(|x| x.0).collect();
 
         let ret = Self {
+            lonely_circuit_count: positions.len(),
+            positions,
             pairs_sorted_by_dist,
             circuits: Vec::new(),
         };
@@ -122,12 +146,12 @@ impl FromStr for JunctionBoxes {
     }
 }
 
-pub fn solve(data: &str) -> Solution<u32, &'static str> {
-    let mut boxes: JunctionBoxes = data.parse().unwrap();
-    let part1 = boxes.solve(ITER_COUNT);
+pub fn solve(data: &str) -> Solution<u32, u64> {
+    let mut boxes1: JunctionBoxes = data.parse().unwrap();
+    let mut boxes2 = boxes1.clone();
 
-    Solution {
-        part1,
-        part2: "TODO",
-    }
+    let part1 = boxes1.solve_part1(ITER_COUNT);
+    let part2 = boxes2.solve_part2();
+
+    Solution { part1, part2 }
 }
