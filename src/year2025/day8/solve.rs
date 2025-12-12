@@ -10,12 +10,12 @@ struct Position {
 }
 
 impl Position {
-    fn dist(&self, other: &Position) -> f64 {
+    fn dist_relative(&self, other: &Position) -> f64 {
         let diff_x = f64::from(other.x) - f64::from(self.x);
         let diff_y = f64::from(other.y) - f64::from(self.y);
         let diff_z = f64::from(other.z) - f64::from(self.z);
 
-        (diff_x.powi(2) + diff_y.powi(2) + diff_z.powi(2)).sqrt()
+        diff_x.powi(2) + diff_y.powi(2) + diff_z.powi(2)
     }
 }
 
@@ -51,14 +51,9 @@ impl JunctionBoxes {
             for j in (i + 1)..self.positions.len() {
                 let pos1 = &self.positions[i];
                 let pos2 = &self.positions[j];
-                let dist_curr = pos1.dist(pos2);
+                let dist_curr = pos1.dist_relative(pos2);
 
-                // TODO: No need to check dist which computes power of two's
-                // TODO: Maybe no need for (j, i) check?
-                if (dist_curr < dist_smallest)
-                    && !self.visited_closest_pairs.contains(&(i, j))
-                    && !self.visited_closest_pairs.contains(&(j, i))
-                {
+                if (dist_curr < dist_smallest) && !self.visited_closest_pairs.contains(&(i, j)) {
                     dist_smallest = dist_curr;
                     ret = Some((i, j));
                 }
