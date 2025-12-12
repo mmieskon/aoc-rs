@@ -2,6 +2,8 @@ use std::{collections::HashSet, str::FromStr};
 
 use crate::solution::Solution;
 
+const ITER_COUNT: usize = 1000;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct Position {
     x: u32,
@@ -22,14 +24,14 @@ impl Position {
 #[derive(Debug)]
 struct JunctionBoxes {
     positions: Vec<Position>,
-    visited_closest_pairs: HashSet<(usize, usize)>,
+    pairs_sorted_by_dist: Vec<(usize, usize)>,
     circuits: Vec<HashSet<usize>>,
 }
 
 impl JunctionBoxes {
     fn solve(&mut self, iterations: usize) -> u32 {
-        for _ in 0..iterations {
-            let (idx1, idx2) = self.closest_boxes_next().unwrap();
+        for i in 0..iterations {
+            let (idx1, idx2) = self.pairs_sorted_by_dist[i];
             self.try_connect(idx1, idx2);
         }
 
@@ -38,30 +40,6 @@ impl JunctionBoxes {
 
         for circuit in self.circuits.iter().rev().take(3) {
             ret *= u32::try_from(circuit.len()).unwrap();
-        }
-
-        ret
-    }
-
-    fn closest_boxes_next(&mut self) -> Option<(usize, usize)> {
-        let mut dist_smallest: f64 = f64::INFINITY;
-        let mut ret: Option<(usize, usize)> = None;
-
-        for i in 0..self.positions.len() {
-            for j in (i + 1)..self.positions.len() {
-                let pos1 = &self.positions[i];
-                let pos2 = &self.positions[j];
-                let dist_curr = pos1.dist_relative(pos2);
-
-                if (dist_curr < dist_smallest) && !self.visited_closest_pairs.contains(&(i, j)) {
-                    dist_smallest = dist_curr;
-                    ret = Some((i, j));
-                }
-            }
-        }
-
-        if let Some(pair) = ret {
-            self.visited_closest_pairs.insert(pair);
         }
 
         ret
@@ -110,6 +88,32 @@ impl FromStr for JunctionBoxes {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut visited_closest_pairs: HashSet<(usize, usize)> = HashSet::new();
+
+        let mut closest_boxes_next = |positions: &mut Vec<Position>| -> Option<(usize, usize)> {
+            let mut dist_smallest: f64 = f64::INFINITY;
+            let mut ret: Option<(usize, usize)> = None;
+
+            for i in 0..positions.len() {
+                for j in (i + 1)..positions.len() {
+                    let pos1 = &positions[i];
+                    let pos2 = &positions[j];
+                    let dist_curr = pos1.dist_relative(pos2);
+
+                    if (dist_curr < dist_smallest) && !visited_closest_pairs.contains(&(i, j)) {
+                        dist_smallest = dist_curr;
+                        ret = Some((i, j));
+                    }
+                }
+            }
+
+            if let Some(pair) = ret {
+                visited_closest_pairs.insert(pair);
+            }
+
+            ret
+        };
+
         let mut positions: Vec<Position> = Vec::new();
 
         for line in s.lines() {
@@ -121,17 +125,27 @@ impl FromStr for JunctionBoxes {
             positions.push(Position { x, y, z });
         }
 
-        Ok(Self {
+        let mut ret = Self {
             positions,
-            visited_closest_pairs: HashSet::new(),
+            pairs_sorted_by_dist: Vec::new(),
             circuits: Vec::new(),
-        })
+        };
+
+        for _ in 0..ITER_COUNT {
+            if let Some((idx1, idx2)) = closest_boxes_next(&mut ret.positions) {
+                ret.pairs_sorted_by_dist.push((idx1, idx2));
+            } else {
+                break;
+            }
+        }
+
+        Ok(ret)
     }
 }
 
 pub fn solve(data: &str) -> Solution<u32, &'static str> {
     let mut boxes: JunctionBoxes = data.parse().unwrap();
-    let part1 = boxes.solve(1000);
+    let part1 = boxes.solve(ITER_COUNT);
 
     Solution {
         part1,
