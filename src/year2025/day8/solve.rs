@@ -27,6 +27,22 @@ struct JunctionBoxes {
 }
 
 impl JunctionBoxes {
+    fn solve(&mut self, iterations: usize) -> u32 {
+        for _ in 0..iterations {
+            let (idx1, idx2) = self.closest_boxes_next().unwrap();
+            self.try_connect(idx1, idx2);
+        }
+
+        let mut ret: u32 = 1;
+        self.circuits.sort_by_key(|set| set.len());
+
+        for circuit in self.circuits.iter().rev().take(3) {
+            ret *= u32::try_from(circuit.len()).unwrap();
+        }
+
+        ret
+    }
+
     fn closest_boxes_next(&mut self) -> Option<(usize, usize)> {
         let mut dist_smallest: f64 = f64::INFINITY;
         let mut ret: Option<(usize, usize)> = None;
@@ -56,10 +72,10 @@ impl JunctionBoxes {
         ret
     }
 
-    fn try_connect(&mut self, idx1: usize, idx2: usize) -> bool {
+    fn try_connect(&mut self, idx1: usize, idx2: usize) {
         for (i, circuit) in self.circuits.iter().enumerate() {
             if circuit.contains(&idx1) && circuit.contains(&idx2) {
-                return false;
+                return;
             } else if circuit.contains(&idx1) {
                 if let Some((idx, _)) = self
                     .circuits
@@ -73,7 +89,7 @@ impl JunctionBoxes {
                 } else {
                     self.circuits[i].insert(idx2);
                 }
-                return true;
+                return;
             } else if circuit.contains(&idx2) {
                 if let Some((idx, _)) = self
                     .circuits
@@ -87,12 +103,11 @@ impl JunctionBoxes {
                 } else {
                     self.circuits[i].insert(idx1);
                 }
-                return true;
+                return;
             }
         }
 
         self.circuits.push(HashSet::from([idx1, idx2]));
-        true
     }
 }
 
@@ -119,27 +134,12 @@ impl FromStr for JunctionBoxes {
     }
 }
 
-pub fn solve(data: &str) -> Solution<&'static str, &'static str> {
+pub fn solve(data: &str) -> Solution<u32, &'static str> {
     let mut boxes: JunctionBoxes = data.parse().unwrap();
-
-    let target = 1000;
-    let mut i = 0;
-
-    println!();
-    while i < target {
-        let (idx1, idx2) = boxes.closest_boxes_next().unwrap();
-        println!("({:?}, {:?})", boxes.positions[idx1], boxes.positions[idx2]);
-        if boxes.try_connect(idx1, idx2) {}
-        i += 1;
-    }
-
-    boxes.circuits.sort_by(|x, y| x.len().cmp(&y.len()));
-    for circuit in boxes.circuits {
-        println!("{}", circuit.len());
-    }
+    let part1 = boxes.solve(1000);
 
     Solution {
-        part1: "TODO",
+        part1,
         part2: "TODO",
     }
 }
